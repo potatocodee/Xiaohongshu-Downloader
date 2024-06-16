@@ -1,0 +1,156 @@
+/* Google Fonts - Poppins */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
+
+:root {
+    --primary-color: #4070f4;
+    --secondary-color: #7094f7;
+    --animation-time: 0.075s;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    min-height: 100%;
+    background: #fff;
+}
+
+.sidebar {
+    top: 0;
+    left: 0;
+    width: 260px;
+    padding: 10px 0;
+    background-color: #fff;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.sidebar .logo {
+    display: flex;
+    align-items: center;
+    margin: 10px 24px;
+    user-select: none;
+}
+
+.logo .menu-icon {
+    color: #333;
+    font-size: 24px;
+    margin-right: 14px;
+}
+
+.logo .logo-name {
+    color: #333;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.sidebar .sidebar-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 5px 16px;
+}
+
+.sidebar-content .list {
+    list-style: none;
+}
+
+.list .nav-link {
+    display: flex;
+    align-items: center;
+    margin: 4px 0;
+    padding: 15px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    cursor: pointer;
+    position: relative;
+    color: #707070;
+    transition: background-color var(--animation-time), color var(--animation-time), transform var(--animation-time);
+    -webkit-user-drag: none;
+    user-select: none;
+}
+
+.list .nav-link:hover {
+    background-color: var(--primary-color);
+    /* Blue color on hover */
+    color: #FFFFFF;
+    /* White text color on hover */
+}
+
+.nav-link .icon {
+    margin-right: 14px;
+    font-size: 14px;
+}
+
+.list .nav-link .link {
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.list .nav-link:active {
+    transform: scale(0.99);
+    background-color: var(--secondary-color);
+    color: #FFFFFF;
+    transition: background-color var(--animation-time), transform var(--animation-time) ease-in-out 0s;
+}
+
+/* .list .nav-link:active:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    background-color: var(--secondary-color);
+    animation: fill-button var(--animation-time) ease-in-out forwards;
+    z-index: -1;
+} */
+
+.nav-link .progress-bar {
+    position: absolute;
+    bottom: 4px;
+    left: 12px;
+    height: 3px;
+    width: calc((100% - 24px)); /* Subtract the width of the icon and some padding */
+    border-radius: 4px;
+    transition: width var(--animation-time) ease-in-out;
+}
+
+.progress-bar::-webkit-progress-bar {
+    background-color: #fff;
+    border-radius: 3px;
+    transition: background-color var(--animation-time);
+}
+
+.progress-bar::-webkit-progress-value {
+    background-color: var(--primary-color);
+    border-radius: 3px;
+    transition: background-color var(--animation-time), width 0.2s;
+}
+
+.nav-link:hover .progress-bar::-webkit-progress-bar {
+    background-color: var(--primary-color);
+}
+
+.nav-link:active .progress-bar::-webkit-progress-bar {
+    background-color: var(--secondary-color);
+}
+
+.nav-link:hover .progress-bar::-webkit-progress-value,
+.nav-link:active .progress-bar::-webkit-progress-value {
+    background-color: #fff;
+}
+
+@keyframes fill-button {
+    0% {
+        width: 0;
+    }
+
+    100% {
+        width: 100%;
+    }
+}

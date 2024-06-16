@@ -1,0 +1,46 @@
+{
+    "manifest_version": 3,
+    "name": "Xiaohongshu Downloader",
+    "version": "1.0",
+    "description": "Download images, videos and profile avatars from Xiaohongshu.",
+    "icons": {
+        "16": "XiaohongshuLOGO.png",
+        "48": "XiaohongshuLOGO.png",
+        "128": "XiaohongshuLOGO.png"
+    },
+    "permissions": [
+        "downloads",
+        "storage",
+        "unlimitedStorage",
+        "offscreen",
+        "activeTab"
+    ],
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
+    },
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://www.xiaohongshu.com/*"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "all_frames": true
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "window.js"
+            ],
+            "matches": [
+                "https://www.xiaohongshu.com/*"
+            ]
+        }
+    ]
+}
