@@ -67,17 +67,14 @@ class Note {
         }
     }
 
-    async download_image(i, format = "jpg", retry = true) {
-        await this.#download_image(this, await get_user(this.user_id), i, format, retry);
-    }
-
     async download_images(format = "jpg", slice, retry = true) { // If all images then leave slice undefined
         var user = await get_user(this.user_id);
-        var imgs = slice ? slice.map((i) => this.images[i]) : this.images.slice();
+        if (!slice)
+            slice = [...this.images.keys()];
         var result = true;
 
-        for (var i = 0; i < imgs.length; i++) {
-            result = result && await this.#download_image(this, user, i, format, retry);
+        for (var i = 0; i < slice.length; i++) {
+            result = result && await this.#download_image(this, user, slice[i], format, retry);
             await wait(250); // Wait for 0.25 sec before downloading the next image, to avoid being rate limited / blocked
         }
 
@@ -107,31 +104,50 @@ class Note {
         await this.#download_video(this, await get_user(this.user_id), retry);
     }
 
+    download_image(i, format = "jpg", retry = true) {
+        var note = this;
+        var id = { task: ["download_image", this.id].join('_'), time: Date.now() };
+        download().catch((error) => set_progress(id, { error: Object.getOwnPropertyNames(error).reduce((obj, key) => { obj[key] = error[key]; return obj; }, {}) }));
+        return id;
+
+        async function download() {
+            if (note.images[i].downloaded)
+                return;
+            await set_progress(id, { value: 0, max: 1 });
+            await note.#download_image(note, await get_user(note.user_id), i, format, retry);
+            note.images[i].downloaded = true;
+            await set_progress(id, { value: 1, max: 1 });
+            update_note(note);
+        }
+    }
+
     // Combines download_images and download_video with additional calls to update progress
     // This function knows image no. + video no. (0 or 1), download_images and download_video only know one of them
     // Synchronously returns a download id for progress tracking
     download(format = "jpg", slice, retry = true) {
         var note = this;
+        if (!slice)
+            slice = [...this.images.keys()];
         var id = { task: ["download_note", this.id].join('_'), time: Date.now() };
         download().catch((error) => set_progress(id, { error: Object.getOwnPropertyNames(error).reduce((obj, key) => { obj[key] = error[key]; return obj; }, {}) }));
         return id;
 
         async function download() {
             var user = await get_user(note.user_id);
-            var imgs = (slice ? slice.map((i) => note.images[i]) : note.images.slice()).filter((img) => !img.downloaded);
-            var max = imgs.length + (note.video && note.video.downloaded ? 1 : 0);
+            slice = slice.filter((i) => !note.images[i].downloaded);
+            var max = slice.length + (note.video && !note.video.downloaded ? 1 : 0);
 
             if (max == 0)
                 return;
 
-            for (var i = 0; i < imgs.length; i++) {
+            for (var i = 0; i < slice.length; i++) {
                 await set_progress(id, { value: i, max: max });
-                await note.#download_image(note, user, i, format, retry);
+                await note.#download_image(note, user, slice[i], format, retry);
                 await wait(250); // Wait for 0.25 sec before downloading the next image, to avoid being rate limited / blocked
             }
-            await set_progress(id, { value: imgs.length, max: max });
+            await set_progress(id, { value: slice.length, max: max });
 
-            if (note.video && note.video.downloaded) {
+            if (note.video && !note.video.downloaded) {
                 await note.#download_video(note, user, retry);
                 await set_progress(id, { value: max, max: max });
             }

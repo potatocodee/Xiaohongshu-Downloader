@@ -40,9 +40,9 @@ export class Media {
 export class Image extends Media {
 
     static BASE_URLS = [
-        "https://sns-img-go.xhscdn.com",
-        "https://sns-img-qc.xhscdn.com",
         "https://sns-img-al.xhscdn.com",
+        "https://sns-img-qc.xhscdn.com",
+        "https://sns-img-go.xhscdn.com",
         "https://sns-img-ws.xhscdn.com"
     ];
 
@@ -71,15 +71,7 @@ export class Image extends Media {
     }
 
     base_urls(format) {
-        // switch (format) {
-        //     case "jpg":
-        //     case "jpeg":
-        //         return Image.BASE_URLS_JPG.concat(Image.BASE_URLS);
-        //     default:
-        //         return Image.BASE_URLS;
-        // }
-        return Image.BASE_URLS_JPG.concat(Image.BASE_URLS);
-        // return Image.BASE_URLS;
+        return Image.BASE_URLS.concat(Image.BASE_URLS_JPG);
     }
 
     default_format() {

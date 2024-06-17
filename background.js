@@ -48,7 +48,7 @@ async function fetch_user(user_id, tab_id) {
     if (tab_id) {
         var tabs = await chrome.tabs.query({ active: true, currentWindow: true });
         if (tabs.length == 1 && tabs[0].id == tab_id) {
-            var res = await chrome.tabs.sendMessage(tab_id, { channel: "active_tab_content", action: "fetch_user" });
+            var res = await chrome.tabs.sendMessage(tab_id, { channel: "active_tab", action: "fetch_user" });
             switch (res.status) {
                 case "success":
                     return { user_json: JSON.parse(res.object.user_json), notes_json: JSON.parse(res.object.notes_json) };
@@ -58,7 +58,6 @@ async function fetch_user(user_id, tab_id) {
         }
     }
     var init = await fetch_initial_state(new URL(user_id, "https://www.xiaohongshu.com/user/profile/"));
-    // return { user_json: init.user.userPageData, notes_json: init.user.loggedIn ? init.user.notes[0] : undefined };
     return { user_json: init.user.userPageData, notes_json: init.user.notes[0] };
 }
 
@@ -153,9 +152,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         function send_response(object) {
             sendResponse({ status: "success", object: object });
         }
-        // function error_progress(id, error) {
-        //     set_progress(id, { error: error });
-        // }
         function send_error(error) {
             console.error(error);
             var obj = Object.getOwnPropertyNames(error).reduce((obj, key) => { obj[key] = error[key]; return obj; }, {});
@@ -170,6 +166,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 return true;
             case "download_note":
                 get_note(params.note_id).then((note) => send_response(note.download())).catch(send_error);
+                return true;
+            case "download_image":
+                async function download() {
+                    var note = await get_note(params.note_id);
+                    var tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+                    if (tabs.length == 1 && tabs[0].id == params.tab_id) {
+                        var res = await chrome.tabs.sendMessage(params.tab_id, { channel: "active_tab", action: "current_image_index" });
+                        switch (res.status) {
+                            case "success":
+                                return await note.download_image(res.object);
+                            case "error":
+                                throw res.object;
+                        }
+                    }
+                }
+                download().then(send_response).catch(send_error);
                 return true;
         }
     }

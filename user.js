@@ -45,18 +45,23 @@ class User {
 
         async function download() {
             var note_ids_slice = slice ? slice.map((i) => user.note_ids[i]) : user.note_ids.slice();
+            var downloaded_count = 0;
             for (var i = 0; i < note_ids_slice.length; i++) {
-                await set_progress(id, { value: i, max: note_ids_slice.length });
                 var note = await get_note(note_ids_slice[i]);
+                if (note.images.every((image) => image.downloaded) && (!note.video || note.video.downloaded)) {
+                    downloaded_count++;
+                    continue;
+                }
+                await set_progress(id, { value: i - downloaded_count, max: note_ids_slice.length - downloaded_count });
                 if (note.images.length > 0)
                     await note.download_images(undefined, undefined, retry);
-                if (note.video && !note)
+                if (note.video && !note.video.downloaded)
                     await note.download_video(retry);
                 update_note(note);
                 if (i % 20 == 19)
                     await wait(60000); // Take a break to clear up the retrying downloads
             }
-            await set_progress(id, { value: note_ids_slice.length, max: note_ids_slice.length });
+            await set_progress(id, { value: note_ids_slice.length - downloaded_count, max: note_ids_slice.length - downloaded_count });
         }
 
     }

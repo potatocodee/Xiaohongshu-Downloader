@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Xiaohongshu Downloader",
-    "version": "1.0",
+    "version": "1.0.1",
     "description": "Download images, videos and profile avatars from Xiaohongshu.",
     "icons": {
         "16": "XiaohongshuLOGO.png",

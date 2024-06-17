@@ -1,14 +1,6 @@
 var obj_id;
 var tab_id;
 
-// function add_button(id, text, onclick) {
-//     var button = document.createElement("button");
-//     button.id = id;
-//     button.textContent = text;
-//     button.addEventListener("click", onclick);
-//     document.getElementById("container").appendChild(button);
-// }
-
 function add_button(id, icn, text, onclick) {
     var li = document.createElement("li");
     li.id = id;
@@ -56,8 +48,11 @@ async function init_button(task_prefix, btn_id, icn, text, onclick) {
         var id = { task: task, time: timestamps[0] /* There is supposed to be one timestamp only */ };
         var progress = await get_progress(id);
         update_progress(li, text, progress);
-        if (progress.error || progress.value == progress.max)
+        li.removeEventListener("click", onclick);
+        if (progress.error || progress.value == progress.max) {
+            li.addEventListener("click", onclick);
             await chrome.runtime.sendMessage(undefined, { channel: "popup", action: "remove_progress", params: { id: id } });
+        }
 
     }
 }
@@ -132,6 +127,10 @@ function download_note() {
     download("download_note", { note_id: obj_id });
 }
 
+function download_image() {
+    download("download_image", { tab_id: tab_id, note_id: obj_id });
+}
+
 window.onload = () => {
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         if (tabs.length == 0)
@@ -147,6 +146,7 @@ window.onload = () => {
         } else if (path.startsWith("/explore/")) {
             obj_id = path.substring(path.indexOf("/explore/") + "/explore/".length);
             init_button("download_note", "download-note", "bxs-download", "Download Note", download_note);
+            init_button("download_image", "download-image", "bx-image-alt", "Download This Image", download_image);
         }
     });
 };

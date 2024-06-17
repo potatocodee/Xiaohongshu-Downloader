@@ -12,9 +12,6 @@ async function fetch_all_notes() {
 
 async function pass_initial_state() {
     await fetch_all_notes();
-    // var span = document.getElementById("initial_state");
-    // span.textContent = JSON.stringify(window.__INITIAL_STATE__);
-    // span.dispatchEvent(new CustomEvent("initial_state_ready"));
     var state = window.__INITIAL_STATE__;
     document.dispatchEvent(new CustomEvent("initial_state_ready", { detail: JSON.stringify(state) }));
 }
